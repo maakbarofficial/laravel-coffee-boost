@@ -47,4 +47,23 @@ class UserController extends Controller
             'data' => null
         ], 400);
     }
+
+    public function getUser(Request $request)
+    {
+        $users = User::all();
+
+        if ($users) {
+            return response()->json([
+                'status' => true,
+                'message' => count($users).' Users fetched Successfully',
+                'data' => $users
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong',
+            'data' => null
+        ], 400);
+    }
 }

@@ -48,14 +48,14 @@ class UserController extends Controller
         ], 400);
     }
 
-    public function getUser(Request $request)
+    public function getUsers()
     {
         $users = User::all();
 
         if ($users) {
             return response()->json([
                 'status' => true,
-                'message' => count($users).' Users fetched Successfully',
+                'message' => count($users) . ' Users fetched Successfully',
                 'data' => $users
             ], 200);
         }
@@ -65,5 +65,29 @@ class UserController extends Controller
             'message' => 'Something went wrong',
             'data' => null
         ], 400);
+    }
+
+    public function getUser($id)
+    {
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|integer|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error',
+                'error' => $validator->errors(),
+                'data' => null
+            ], 422);
+        }
+
+        $user = User::find($id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User fetched successfully',
+            'data' => $user
+        ], 200);
     }
 }

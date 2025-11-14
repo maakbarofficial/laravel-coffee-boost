@@ -70,7 +70,7 @@ class UserController extends Controller
     public function getUser($id)
     {
         $validator = Validator::make(['id' => $id], [
-            'id' => 'required|integer|exists:users,id',
+            'id' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -83,6 +83,14 @@ class UserController extends Controller
         }
 
         $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found with the given id',
+                'data' => null
+            ], 400);
+        }
 
         return response()->json([
             'status' => true,

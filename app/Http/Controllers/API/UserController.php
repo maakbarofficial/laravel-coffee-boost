@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -69,34 +70,43 @@ class UserController extends Controller
 
     public function getUser($id)
     {
-        $validator = Validator::make(['id' => $id], [
-            'id' => 'required|integer',
-        ]);
+        try {
+            $validator = Validator::make(['id' => $id], [
+                'id' => 'required|integer',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation Error',
+                    'error' => $validator->errors(),
+                    'data' => null
+                ], 422);
+            }
+
+            $use = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found with the given id',
+                    'data' => null
+                ], 400);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User fetched successfully',
+                'data' => $user
+            ], 200);
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Validation Error',
-                'error' => $validator->errors(),
-                'data' => null
-            ], 422);
+                'message' => 'API failed due to error',
+                'data' => null,
+                'error' => $e->getMessage()
+            ], 200);
         }
-
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found with the given id',
-                'data' => null
-            ], 400);
-        }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'User fetched successfully',
-            'data' => $user
-        ], 200);
     }
 
     public function updateUser($id, Request $request)
